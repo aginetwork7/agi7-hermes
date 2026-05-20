@@ -61,6 +61,13 @@ fi
 # --- Running as hermes from here ---
 source "${INSTALL_DIR}/.venv/bin/activate"
 
+# Bridge file-backed Docker secrets into the env vars the gateway actually
+# reads. Prefer an explicit API_SERVER_KEY when already set.
+if [ -z "${API_SERVER_KEY:-}" ] && [ -n "${API_SERVER_KEY_FILE:-}" ] && [ -f "${API_SERVER_KEY_FILE}" ]; then
+    API_SERVER_KEY="$(tr -d '\r\n' < "${API_SERVER_KEY_FILE}")"
+    export API_SERVER_KEY
+fi
+
 # Stamp install method for detect_install_method()
 echo "docker" > "${HERMES_HOME:=/opt/data}/.install_method" 2>/dev/null || true
 
